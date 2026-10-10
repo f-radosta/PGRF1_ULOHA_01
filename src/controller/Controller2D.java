@@ -1,7 +1,10 @@
 package controller;
 
 import rasterize.LineRasterizer;
+import rasterize.LineRasterizerBresenham;
+import rasterize.LineRasterizerDDA;
 import rasterize.LineRasterizerGraphics;
+import rasterize.LineRasterizerMidpoint;
 import rasterize.LineRasterizerTrivial;
 import view.Panel;
 
@@ -21,6 +24,9 @@ public class Controller2D {
 
 //        lineRasterizer = new LineRasterizerGraphics(panel.getRaster());
         lineRasterizer = new LineRasterizerTrivial(panel.getRaster());
+        //lineRasterizer = new LineRasterizerDDA(panel.getRaster());
+        //lineRasterizer = new LineRasterizerMidpoint(panel.getRaster());
+        //lineRasterizer = new LineRasterizerBresenham(panel.getRaster());
 
         initListeners();
     }
