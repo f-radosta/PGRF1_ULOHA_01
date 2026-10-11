@@ -15,6 +15,10 @@ public class Polygon {
         points.add(point);
     }
 
+    public void addPoint(int index, Point point) {
+        points.add(index, point);
+    }
+
     public Point getPoint(int i) {
         return points.get(i);
     }
