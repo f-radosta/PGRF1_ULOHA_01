@@ -8,6 +8,7 @@ public class LineRasterizerBresenham extends LineRasterizer {
         super(raster);
     }
 
+    // Bresenham
     @Override
     public void rasterize(int x1, int y1, int x2, int y2) {
         int dx = Math.abs(x2 - x1);

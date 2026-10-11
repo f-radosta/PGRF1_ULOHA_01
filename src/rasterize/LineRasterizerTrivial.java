@@ -8,6 +8,7 @@ public class LineRasterizerTrivial extends LineRasterizer {
         super(raster);
     }
 
+    // Triviální algoritmus
     @Override
     public void rasterize(int x1, int y1, int x2, int y2) {
 
@@ -16,6 +17,9 @@ public class LineRasterizerTrivial extends LineRasterizer {
 
         if (Math.abs(x2 - x1) == 0) {
             for(int y = y1; y <= y2; y++) {
+                raster.setPixel(x1, y, 0xff0000);
+            }
+            for(int y = y2; y <= y1; y++) {
                 raster.setPixel(x1, y, 0xff0000);
             }
             return;

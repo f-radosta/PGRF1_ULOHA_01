@@ -10,6 +10,7 @@ public class LineRasterizerDDA extends LineRasterizer {
         super(raster);
     }
 
+    // DDA
     @Override
     public void rasterize(int x1, int y1, int x2, int y2) {
 

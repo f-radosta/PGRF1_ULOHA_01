@@ -8,6 +8,7 @@ public class LineRasterizerMidpoint extends LineRasterizer {
         super(raster);
     }
 
+    // Midpoint
     @Override
     public void rasterize(int x1, int y1, int x2, int y2) {
         raster.setPixel(x1, y1, 0xff0000);
