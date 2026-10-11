@@ -3,10 +3,6 @@ package controller;
 import model.Point;
 import model.Polygon;
 import rasterize.LineRasterizer;
-import rasterize.LineRasterizerBresenham;
-import rasterize.LineRasterizerDDA;
-import rasterize.LineRasterizerGraphics;
-import rasterize.LineRasterizerMidpoint;
 import rasterize.LineRasterizerTrivial;
 import view.Panel;
 
@@ -21,17 +17,12 @@ public class Controller2D {
     private Polygon polygon;
     private int nearestIndex = -1;
 
-    // Rasterizers
     private LineRasterizer lineRasterizer;
 
     public Controller2D(Panel panel) {
         this.panel = panel;
 
-//        lineRasterizer = new LineRasterizerGraphics(panel.getRaster());
         lineRasterizer = new LineRasterizerTrivial(panel.getRaster());
-        //lineRasterizer = new LineRasterizerDDA(panel.getRaster());
-        //lineRasterizer = new LineRasterizerMidpoint(panel.getRaster());
-        //lineRasterizer = new LineRasterizerBresenham(panel.getRaster());
 
         polygon = new Polygon();
 
@@ -52,25 +43,25 @@ public class Controller2D {
         });
 
         panel.addMouseListener(new MouseAdapter() {
-           @Override
-           public void mousePressed(MouseEvent e) {
-               if (SwingUtilities.isRightMouseButton(e)) {
-                   nearestIndex = findNearest(e.getX(), e.getY());
-               }
-           }
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    nearestIndex = findNearest(e.getX(), e.getY());
+                }
+            }
 
-           @Override
-           public void mouseReleased(MouseEvent e) {
-               if (SwingUtilities.isRightMouseButton(e)) {
-                   nearestIndex = -1;
-                   return;
-               }
-               addPoint(e);
-               panel.getRaster().clear();
-               paintPolygon(e);
-               panel.repaint();
-           }
-       });
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    nearestIndex = -1;
+                    return;
+                }
+                addPoint(e);
+                panel.getRaster().clear();
+                paintPolygon(e);
+                panel.repaint();
+            }
+        });
 
         panel.addMouseMotionListener(new MouseAdapter() {
             @Override
@@ -120,7 +111,7 @@ public class Controller2D {
         if (polygon.size() >= 2) {
             for (int i = 0; i < polygon.size() - 1; i++) {
                 Point pointStart = polygon.getPoint(i);
-                Point pointEnd = polygon.getPoint(i+1);
+                Point pointEnd = polygon.getPoint(i + 1);
                 lineRasterizer.rasterize(pointStart.getX(), pointStart.getY(), pointEnd.getX(), pointEnd.getY());
             }
             lineRasterizer.rasterize(
@@ -198,6 +189,6 @@ public class Controller2D {
         } else {
             polygon.addPoint(newPoint);
         }
-        System.out.println("new point: " + startX + ", " + startY);
+        // System.out.println("new point: " + startX + ", " + startY);
     }
 }
