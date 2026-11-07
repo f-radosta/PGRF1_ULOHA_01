@@ -11,7 +11,9 @@ public class PolygonRasterizer {
     }
 
     public void rasterize(Polygon polygon) {
-        // TODO: kontrola, jestli je min počet vrcholů
+
+//        if (polygon.getSize() < 3) // schvalne nechavam zakomentovane at vidim co kreslim
+//            return;
 
         for(int i = 0; i < polygon.getSize(); i++) {
             int indexA = i;
