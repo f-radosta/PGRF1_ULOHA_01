@@ -23,11 +23,21 @@ public class SeedFiller implements Filler{
 
     private void seedFill(int x, int y) {
         // 1. Načtu barvu z rasteru na souřadnicích seedu
-        int pixelColor = raster.getPixel(x, y);
-        // TODO: 2. Porovnám načtenou barvu s barvou pozadí
-        // TODO: 3. Pokud se nerovnají, nedělám nic
-        // TODO: 4. Pokud se rovnají tak obravím
-        // TODO: to samé udělám pro sousední pixely
+        Integer pixelColor = raster.getPixel(x, y);
+        if (pixelColor == null) {
+            return;
+        }
+        // Porovnám načtenou barvu s barvou pozadí
+        // Pokud se nerovnají, nedělám nic
+        // Pokud se rovnají tak obravím
+        if (pixelColor == backgroundColor) {
+            raster.setPixel(x, y, fillColor);
+            // to samé udělám pro sousední pixely
+            seedFill(x + 1, y);
+            seedFill(x - 1, y);
+            seedFill(x, y + 1);
+            seedFill(x, y - 1);
+        }
     }
 
     public void setFillColor(int fillColor) {

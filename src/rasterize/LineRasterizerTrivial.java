@@ -17,10 +17,10 @@ public class LineRasterizerTrivial extends LineRasterizer {
 
         if (Math.abs(x2 - x1) == 0) {
             for(int y = y1; y <= y2; y++) {
-                setPixel(x1, y, 0xff0000);
+                raster.setPixel(x1, y, 0xff0000);
             }
             for(int y = y2; y <= y1; y++) {
-                setPixel(x1, y, 0xff0000);
+                raster.setPixel(x1, y, 0xff0000);
             }
             return;
         }
@@ -34,7 +34,7 @@ public class LineRasterizerTrivial extends LineRasterizer {
 
             for(int x = x1; x <= x2; x++) {
                 int y = Math.round(k * x + q);
-                setPixel(x, y, 0xff0000);
+                raster.setPixel(x, y, 0xff0000);
             }
         } else {
             if (y1 > y2) {
@@ -45,14 +45,9 @@ public class LineRasterizerTrivial extends LineRasterizer {
 
             for(int y = y1; y <= y2; y++) {
                 int x = Math.round((y - q) / k);
-                setPixel(x, y, 0xff0000);
+                raster.setPixel(x, y, 0xff0000);
             }
         }
 
-    }
-
-    private void setPixel(int x, int y, int color) {
-        if (x > 0 && y > 0 && x < raster.getWidth() && y < raster.getHeight())
-            raster.setPixel(x, y, color);
     }
 }

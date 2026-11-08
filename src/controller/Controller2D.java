@@ -1,5 +1,6 @@
 package controller;
 
+import fill.ScanLineFiller;
 import fill.SeedFiller;
 import model.Edge;
 import model.Point2D;
@@ -23,6 +24,7 @@ public class Controller2D {
 
     // Fillers
     private SeedFiller seedFiller;
+    private ScanLineFiller scanLineFiller;
 
     private Polygon polygon;
     private Edge clipLine = new Edge(400, 400, 600, 100);
@@ -39,6 +41,7 @@ public class Controller2D {
         lineRasterizer = new LineRasterizerTrivial(panel.getRaster());
         polygonRasterizer = new PolygonRasterizer(lineRasterizer);
         seedFiller = new SeedFiller(panel.getRaster());
+        scanLineFiller = new ScanLineFiller(0x00ff00, panel.getRaster(), polygonRasterizer);
         polygon = new Polygon();
 
         initListeners();
@@ -51,7 +54,9 @@ public class Controller2D {
             public void mousePressed(MouseEvent e) {
 
                 if(e.getButton() == MouseEvent.BUTTON3) {
-                    seedFiller.setSeed(new Point2D(e.getX(), e.getY()));
+                    //seedFiller.setSeed(new Point2D(e.getX(), e.getY()));
+                    scanLineFiller.setPolygon(polygon);
+                    drawScene();
                 }
 //                if(e.getButton() == MouseEvent.BUTTON2) {                     // clipLine;
 //                    Point2D p = new Point2D(e.getX(), e.getY());
@@ -109,6 +114,8 @@ public class Controller2D {
 
     private void drawScene() {
         panel.getRaster().clear();
+
+        scanLineFiller.fill();
 
         if (startX != null && endX != null) {
             lineRasterizer.rasterize(startX, startY, endX, endY);
