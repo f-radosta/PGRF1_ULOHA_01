@@ -1,5 +1,6 @@
 package rasterize;
 
+import model.Point2D;
 import raster.Raster;
 
 public class LineRasterizerTrivial extends LineRasterizer {
@@ -49,5 +50,10 @@ public class LineRasterizerTrivial extends LineRasterizer {
             }
         }
 
+    }
+
+    @Override
+    public void rasterize(Point2D start, Point2D end) {
+        rasterize(start.getX(), start.getY(), end.getX(), end.getY());
     }
 }
