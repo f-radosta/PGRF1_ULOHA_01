@@ -14,6 +14,10 @@ public class Polygon {
         points.add(point);
     }
 
+    public void clear() {
+        points.clear();
+    }
+
     public Point2D getPoint(int i) {
         return points.get(i);
     }

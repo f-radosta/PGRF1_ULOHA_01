@@ -4,9 +4,12 @@ import model.Point2D;
 import raster.Raster;
 
 public class SeedFiller implements Filler{
+    private static final int BOUNDARY_COLOR = 0x00ff0000;
+
     private final Raster raster;
     private int fillColor;
     private int backgroundColor;
+    private PatternFill pattern;
     private Point2D seed;
 
     public SeedFiller(Raster raster) {
@@ -22,17 +25,17 @@ public class SeedFiller implements Filler{
     }
 
     private void seedFill(int x, int y) {
-        // 1. Načtu barvu z rasteru na souřadnicích seedu
         Integer pixelColor = raster.getPixel(x, y);
         if (pixelColor == null) {
             return;
         }
-        // Porovnám načtenou barvu s barvou pozadí
-        // Pokud se nerovnají, nedělám nic
-        // Pokud se rovnají tak obravím
+        // červená hranice útvaru
+        if ((pixelColor & 0x00ffffff) == BOUNDARY_COLOR) {
+            return;
+        }
+        // jen pixely původního pozadí
         if (pixelColor == backgroundColor) {
-            raster.setPixel(x, y, fillColor);
-            // to samé udělám pro sousední pixely
+            raster.setPixel(x, y, colorAt(x, y));
             seedFill(x + 1, y);
             seedFill(x - 1, y);
             seedFill(x, y + 1);
@@ -44,12 +47,24 @@ public class SeedFiller implements Filler{
         this.fillColor = fillColor;
     }
 
+    public void setPattern(PatternFill pattern) {
+        this.pattern = pattern;
+    }
+
+    private int colorAt(int x, int y) {
+        if (pattern != null)
+            return pattern.paint(x, y);
+        return fillColor;
+    }
+
     public void setBackgroundColor(int backgroundColor) {
         this.backgroundColor = backgroundColor;
     }
 
     public void setSeed(Point2D seed) {
         this.seed = seed;
+        if (seed == null)
+            return;
 
         int seedColor =  raster.getPixel(seed.getX(), seed.getY());
         setBackgroundColor(seedColor);

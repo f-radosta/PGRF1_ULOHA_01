@@ -15,6 +15,7 @@ import java.util.List;
 public class ScanLineFiller implements Filler{
     private Polygon polygon;
     private int fillColor;
+    private PatternFill pattern;
     private final Raster raster;
     private final PolygonRasterizer polygonRasterizer;
 
@@ -79,7 +80,7 @@ public class ScanLineFiller implements Filler{
             // obarvit
             for (int i = 0; i < intersections.size() - 1; i = i + 2) {
                 for (int j = intersections.get(i); j < intersections.get(i + 1); j++) {
-                    raster.setPixel(j, y, fillColor);
+                    raster.setPixel(j, y, colorAt(j, y));
                 }
             }
         }
@@ -90,6 +91,16 @@ public class ScanLineFiller implements Filler{
 
     public void setFillColor(int fillColor) {
         this.fillColor = fillColor;
+    }
+
+    public void setPattern(PatternFill pattern) {
+        this.pattern = pattern;
+    }
+
+    private int colorAt(int x, int y) {
+        if (pattern != null)
+            return pattern.paint(x, y);
+        return fillColor;
     }
 
     public void setPolygon(Polygon polygon) {

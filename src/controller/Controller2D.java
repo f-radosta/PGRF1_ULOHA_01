@@ -1,5 +1,7 @@
 package controller;
 
+import fill.CheckerPattern;
+import fill.PatternFill;
 import fill.ScanLineFiller;
 import fill.SeedFiller;
 import model.Edge;
@@ -39,19 +41,13 @@ public class Controller2D {
 
         lr = new LineRasterizerTrivial(panel.getRaster());
         pr = new PolygonRasterizer(lr);
+        PatternFill pattern = new CheckerPattern();
         seedFiller = new SeedFiller(panel.getRaster());
+        seedFiller.setPattern(pattern);
         scanLineFiller = new ScanLineFiller(0x00ff00, panel.getRaster(), pr);
+        scanLineFiller.setPattern(pattern);
         polygon = new Polygon();
-        clipper.addPoint(new Point2D(100, 150));
-        clipper.addPoint(new Point2D(400, 100));
-        clipper.addPoint(new Point2D(500, 350));
-        clipper.addPoint(new Point2D(300, 450));
-        clipper.addPoint(new Point2D(100, 300));
-
-        clipperRectangle.addPoint(new Point2D(200, 200));
-        clipperRectangle.addPoint(new Point2D(350, 200));
-        clipperRectangle.addPoint(new Point2D(350, 300));
-        clipperRectangle.addPoint(new Point2D(200, 300));
+        initClippers();
 
         initListeners();
         drawScene();
@@ -62,8 +58,10 @@ public class Controller2D {
             @Override
             public void mousePressed(MouseEvent e) {
                 if(e.getButton() == MouseEvent.BUTTON3) {
-                    //seedFiller.setSeed(new Point2D(e.getX(), e.getY()));
-                    scanLineFiller.setPolygon(polygon);
+                    if (e.isControlDown())
+                        seedFiller.setSeed(new Point2D(e.getX(), e.getY()));
+                    else
+                        scanLineFiller.setPolygon(polygon);
                     drawScene();
                 }
                 if(e.getButton() == MouseEvent.BUTTON2) {
@@ -103,18 +101,50 @@ public class Controller2D {
         panel.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_C) {
+                    reset();
+                    return;
+                }
                 if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
-                    shiftMode =  true;
+                    shiftMode = true;
+                    drawScene();
                 }
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
-                    shiftMode =  false;
+                    shiftMode = false;
+                    drawScene();
                 }
             }
         });
+    }
+
+    private void initClippers() {
+        clipper.clear();
+        clipper.addPoint(new Point2D(100, 150));
+        clipper.addPoint(new Point2D(400, 100));
+        clipper.addPoint(new Point2D(500, 350));
+        clipper.addPoint(new Point2D(300, 450));
+        clipper.addPoint(new Point2D(100, 300));
+
+        clipperRectangle.clear();
+        clipperRectangle.addPoint(new Point2D(200, 200));
+        clipperRectangle.addPoint(new Point2D(350, 200));
+        clipperRectangle.addPoint(new Point2D(350, 300));
+        clipperRectangle.addPoint(new Point2D(200, 300));
+    }
+
+    private void reset() {
+        polygon.clear();
+        startPoint = null;
+        endPoint = null;
+        shiftMode = false;
+        seedFiller.setSeed(null);
+        scanLineFiller.setPolygon(polygon);
+        initClippers();
+        drawScene();
     }
 
     private void drawScene() {
@@ -125,6 +155,7 @@ public class Controller2D {
         pr.rasterize(polygon);
         pr.rasterize(clipper);
         pr.rasterize(clipperRectangle);
+        seedFiller.fill();
 
         panel.repaint();
     }
