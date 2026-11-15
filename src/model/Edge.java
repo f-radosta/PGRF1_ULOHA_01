@@ -156,4 +156,68 @@ public class Edge {
             return true;
         return false;
     }
+
+    static final int LEFT   = 1; // x < xMin
+    static final int RIGHT  = 2; // x > xMax
+    static final int TOP    = 4; // y < yMin, nad oknem
+    static final int BOTTOM = 8; // y > yMax, pod oknem
+
+    private int regionCode(int x, int y, int xMin, int yMin, int xMax, int yMax) {
+        int code = 0;
+        if (x < xMin) code |= LEFT;
+        else if (x > xMax) code |= RIGHT;
+        if (y < yMin) code |= TOP;
+        else if (y > yMax) code |= BOTTOM;
+        return code;
+    }
+
+    // Nová úsečka uvnitř okna, nebo null když tam žádná část neleží
+    public Edge clipCohenSutherland(int xMin, int yMin, int xMax, int yMax) {
+        int cx1 = x1;
+        int cy1 = y1;
+        int cx2 = x2;
+        int cy2 = y2;
+        int code1 = regionCode(cx1, cy1, xMin, yMin, xMax, yMax);
+        int code2 = regionCode(cx2, cy2, xMin, yMin, xMax, yMax);
+
+        while (true) {
+            // oba konce v okně
+            if ((code1 | code2) == 0) {
+                return new Edge(cx1, cy1, cx2, cy2);
+            }
+            // oba konce mimo stejnou stranu
+            if ((code1 & code2) != 0) {
+                return null;
+            }
+
+            // venkovní konec posunout na hranici okna
+            int codeOut = code1 != 0 ? code1 : code2;
+            int x;
+            int y;
+
+            if ((codeOut & TOP) != 0) {
+                x = (int) Math.round(cx1 + (cx2 - cx1) * (yMin - cy1) / (double) (cy2 - cy1));
+                y = yMin;
+            } else if ((codeOut & BOTTOM) != 0) {
+                x = (int) Math.round(cx1 + (cx2 - cx1) * (yMax - cy1) / (double) (cy2 - cy1));
+                y = yMax;
+            } else if ((codeOut & RIGHT) != 0) {
+                y = (int) Math.round(cy1 + (cy2 - cy1) * (xMax - cx1) / (double) (cx2 - cx1));
+                x = xMax;
+            } else {
+                y = (int) Math.round(cy1 + (cy2 - cy1) * (xMin - cx1) / (double) (cx2 - cx1));
+                x = xMin;
+            }
+
+            if (codeOut == code1) {
+                cx1 = x;
+                cy1 = y;
+                code1 = regionCode(cx1, cy1, xMin, yMin, xMax, yMax);
+            } else {
+                cx2 = x;
+                cy2 = y;
+                code2 = regionCode(cx2, cy2, xMin, yMin, xMax, yMax);
+            }
+        }
+    }
 }

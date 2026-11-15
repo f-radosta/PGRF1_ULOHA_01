@@ -27,6 +27,7 @@ public class Controller2D {
 
     private Polygon polygon;
     Polygon clipper = new Polygon();
+    Polygon clipperRectangle = new Polygon();
 
     private Point2D startPoint = null;
     private Point2D endPoint = null;
@@ -46,6 +47,11 @@ public class Controller2D {
         clipper.addPoint(new Point2D(500, 350));
         clipper.addPoint(new Point2D(300, 450));
         clipper.addPoint(new Point2D(100, 300));
+
+        clipperRectangle.addPoint(new Point2D(200, 200));
+        clipperRectangle.addPoint(new Point2D(350, 200));
+        clipperRectangle.addPoint(new Point2D(350, 300));
+        clipperRectangle.addPoint(new Point2D(200, 300));
 
         initListeners();
         drawScene();
@@ -113,30 +119,48 @@ public class Controller2D {
 
     private void drawScene() {
         panel.getRaster().clear();
-
         scanLineFiller.fill();
 
-        if (startPoint != null && endPoint != null) { // pokud je co vykreslovat
-            if (shiftMode) {
-                Edge edge = new Edge(startPoint, endPoint);
-                Point2D shiftModeEndPoint = edge.getShiftModeLineEnd(); // shift mode konec usecky
-                lr.rasterize(startPoint, shiftModeEndPoint);
-                if (polygon.getSize() > 1) // jak bude vypadat nove polygon
-                    lr.rasterize(polygon.getPoint(0), shiftModeEndPoint);
-            } else {
-                lr.rasterize(startPoint, endPoint);
-
-                if (polygon.getSize() > 1) { // jak bude vypadat nove polygon
-                    lr.rasterize(polygon.getPoint(0), endPoint);
-                    lr.rasterize(polygon.getPoint(polygon.getSize()-1), endPoint);
-                }
-            }
-        }
-
+        drawDraggedLine();
         pr.rasterize(polygon);
         pr.rasterize(clipper);
-        //seedFiller.fill();
+        pr.rasterize(clipperRectangle);
 
         panel.repaint();
+    }
+
+    private void drawDraggedLine() {
+        if (startPoint == null || endPoint == null)
+            return;
+
+        Point2D lineEnd = endPoint;
+        if (shiftMode) {
+            lineEnd = new Edge(startPoint, endPoint).getShiftModeLineEnd();
+            if (polygon.getSize() > 1)
+                lr.rasterize(polygon.getPoint(0), lineEnd);
+        } else if (polygon.getSize() > 1) {
+            lr.rasterize(polygon.getPoint(0), endPoint);
+            lr.rasterize(polygon.getPoint(polygon.getSize() - 1), endPoint);
+        }
+
+        drawClippedLine(startPoint, lineEnd);
+    }
+
+    private void drawClippedLine(Point2D a, Point2D b) {
+        int xMin = Integer.MAX_VALUE;
+        int yMin = Integer.MAX_VALUE;
+        int xMax = Integer.MIN_VALUE;
+        int yMax = Integer.MIN_VALUE;
+        for (int i = 0; i < clipperRectangle.getSize(); i++) {
+            Point2D p = clipperRectangle.getPoint(i);
+            xMin = Math.min(xMin, p.getX());
+            yMin = Math.min(yMin, p.getY());
+            xMax = Math.max(xMax, p.getX());
+            yMax = Math.max(yMax, p.getY());
+        }
+
+        Edge clipped = new Edge(a, b).clipCohenSutherland(xMin, yMin, xMax, yMax);
+        if (clipped != null)
+            lr.rasterize(clipped.getX1(), clipped.getY1(), clipped.getX2(), clipped.getY2());
     }
 }
