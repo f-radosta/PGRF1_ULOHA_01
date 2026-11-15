@@ -44,6 +44,34 @@ public class Edge {
         return Math.round(x1 + t * (x2 - x1));
     }
 
+    public Point2D getIntersection(Edge edge) {
+        return getIntersection(edge, true);
+    }
+
+    // asSegment: true = průsečík dvou úseček, false = tahle úsečka proti přímce edge
+    public Point2D getIntersection(Edge edge, boolean asSegment) {
+        double dx1 = x2 - x1;
+        double dy1 = y2 - y1;
+        double dx2 = edge.x2 - edge.x1;
+        double dy2 = edge.y2 - edge.y1;
+
+        double denom = dx1 * dy2 - dy1 * dx2;
+        if (denom == 0) {
+            return null;
+        }
+
+        double t = ((edge.x1 - x1) * dy2 - (edge.y1 - y1) * dx2) / denom;
+        double u = ((edge.x1 - x1) * dy1 - (edge.y1 - y1) * dx1) / denom;
+
+        if (t < 0 || t > 1 || (asSegment && (u < 0 || u > 1))) {
+            return null;
+        }
+
+        int x = (int) Math.round(x1 + t * dx1);
+        int y = (int) Math.round(y1 + t * dy1);
+        return new Point2D(x, y);
+    }
+
     public int getX1() {
         return x1;
     }

@@ -26,8 +26,7 @@ public class Controller2D {
     private ScanLineFiller scanLineFiller;
 
     private Polygon polygon;
-    private Edge clipLine = new Edge(400, 400, 600, 100);
-    private Edge normal;
+    Polygon clipper = new Polygon();
 
     private Point2D startPoint = null;
     private Point2D endPoint = null;
@@ -42,6 +41,11 @@ public class Controller2D {
         seedFiller = new SeedFiller(panel.getRaster());
         scanLineFiller = new ScanLineFiller(0x00ff00, panel.getRaster(), pr);
         polygon = new Polygon();
+        clipper.addPoint(new Point2D(100, 150));
+        clipper.addPoint(new Point2D(400, 100));
+        clipper.addPoint(new Point2D(500, 350));
+        clipper.addPoint(new Point2D(300, 450));
+        clipper.addPoint(new Point2D(100, 300));
 
         initListeners();
         drawScene();
@@ -51,36 +55,18 @@ public class Controller2D {
         panel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-
                 if(e.getButton() == MouseEvent.BUTTON3) {
                     //seedFiller.setSeed(new Point2D(e.getX(), e.getY()));
                     scanLineFiller.setPolygon(polygon);
                     drawScene();
                 }
-//                if(e.getButton() == MouseEvent.BUTTON2) {                     // clipLine;
-//                    Point2D p = new Point2D(e.getX(), e.getY());
-//
-//                    // Spočítám tečný vektor
-//                    Point2D a = new Point2D(clipLine.getX1(), clipLine.getY1());
-//                    Point2D b = new Point2D(clipLine.getX2(), clipLine.getY2());
-//
-//                    // Tečný vektor
-//                    int tx = b.getX() - a.getX();
-//                    int ty = b.getY() - a.getY();
-//                    // Normála - normálový vektor
-//                    int nx = -ty;
-//                    int ny = tx;
-//                    // Vektor v - k bodu P
-//                    int cx = p.getX() - a.getX();
-//                    int cy = p.getY() - a.getY();
-//                    // Skalární součin
-//                    float dot = nx * cx + ny * cy;
-//
-//                    if(dot > 0) System.out.println("Vpravo");
-//                    else  System.out.println("Vlevo");
-//
-//                    normal = new Edge(a.getX(), a.getY(), a.getX() + nx, a.getY() + ny);
-//                }
+                if(e.getButton() == MouseEvent.BUTTON2) {
+                    polygon.clip(clipper);
+                    if (polygon.getSize() > 1) {
+                        startPoint = polygon.getPoint(0);
+                        endPoint = polygon.getPoint(polygon.getSize()-1);
+                    }
+                }
 
                 drawScene();
             }
@@ -104,7 +90,6 @@ public class Controller2D {
             @Override
             public void mouseDragged(MouseEvent e) {
                 endPoint = new Point2D(e.getX(), e.getY());
-
                 drawScene();
             }
         });
@@ -140,17 +125,17 @@ public class Controller2D {
                     lr.rasterize(polygon.getPoint(0), shiftModeEndPoint);
             } else {
                 lr.rasterize(startPoint, endPoint);
-                if (polygon.getSize() > 1) // jak bude vypadat nove polygon
+
+                if (polygon.getSize() > 1) { // jak bude vypadat nove polygon
                     lr.rasterize(polygon.getPoint(0), endPoint);
+                    lr.rasterize(polygon.getPoint(polygon.getSize()-1), endPoint);
+                }
             }
         }
 
         pr.rasterize(polygon);
+        pr.rasterize(clipper);
         //seedFiller.fill();
-
-//        lr.rasterize(clipLine.getX1(), clipLine.getY1(), clipLine.getX2(), clipLine.getY2());
-//        if(normal != null)
-//            lr.rasterize(normal.getX1(), normal.getY1(), normal.getX2(), normal.getY2());
 
         panel.repaint();
     }
